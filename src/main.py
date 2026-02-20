@@ -10,7 +10,9 @@ from bronze.bronze_mco import run as bronze_mco
 # from gold.fato_viagem import run as fato_viagem
 
 
-def main():
+def main(): 
+
+    print("Iniciando execução de main.py (entrypoint)")
     spark = get_spark()
 
     bronze_mco(spark, RAW_PATH, BRONZE_PATH)

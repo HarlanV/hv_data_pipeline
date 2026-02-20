@@ -21,15 +21,31 @@ jobs:
           aws-region: us-east-1
 
       - name: Debug folder structure
-        run: ls -R
-
-      - name: Zip Glue Job
         run: |
+          echo "Repo root:"
+          ls -la
+          echo "src contents:"
+          ls -la src
+          echo "src tree:"
+          ls -R src
+
+      # Cria o zip apenas com as libs (sem o entrypoint main.py)
+      - name: Build hv_pipeline.zip
+        run: |
+          set -e
+          test -f src/main.py
+
+          rm -f hv_pipeline.zip
+
           cd src
-          zip -r ../hv_pipeline.zip . \
+          zip -r ../hv_pipeline.zip bronze silver gold common \
             -x "__pycache__/*" \
             -x "*.pyc"
 
-      - name: Upload to S3
+      - name: Upload hv_pipeline.zip to S3
         run: |
           aws s3 cp hv_pipeline.zip s3://hv-challenge/scripts/hv_pipeline.zip
+
+      - name: Upload main.py to S3
+        run: |
+          aws s3 cp src/main.py s3://hv-challenge/scripts/main.py
