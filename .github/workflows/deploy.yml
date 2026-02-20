@@ -28,6 +28,6 @@ jobs:
         run: |
           aws s3 cp hv_pipeline.zip s3://hv-challenge/scripts/hv_pipeline.zip
 
-      - name: Deploy main_bronze.py
+      - name: Deploy main.py
         run: |
           aws s3 cp hv_data_pipeline/main_bronze.py s3://hv-challenge/scripts/main.py
