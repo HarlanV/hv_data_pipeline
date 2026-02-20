@@ -115,20 +115,3 @@ hv-data-pipeline/
 
 Por segurança, vamos utilizar o storage credentials do nosso catalog. Para isso vamos em 'catalgo' > 'System' > 'information_schema' > 'storage_catalog'. Clique em Create e selecione a opção SQL.
 Execute a consulta abaixo, substituindo os valores de Access key e Secret key pelos gerados anteriormente no IAM.
-
-
-### Comunicação Databricks-AWS
-
-Devido às limitações do Databricks Free (Serverless), utilizamos pre-signed URLs para leitura do S3.
-Em ambiente produtivo, o acesso ao S3 seria feito nativamente pelo Databricks, utilizando IAM Role associada ao cluster (sem chaves estáticas) e leitura via s3a://. Os dados seriam armazenados em Delta Lake, garantindo versionamento, controle transacional e governança adequada.
-
-### Configurações iniciais 
-
-#### Credenciais de acesso
-Devido a impossibilidade de utilizarmos o secret manager na versão gratuita, utilizamos um arquivo .py com as chaves de acesso ao S3. Para isso:
-
-- Copie o arquivo lib\secret_manager_example.py e renomeie para secret_manager.py
-- Substitua os valores de Access key e Secret Access key pelos da sua base
-- Caso necessario, substitua também o nome da região do seu S3
-
-#### Pipeline
