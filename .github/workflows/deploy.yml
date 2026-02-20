@@ -1,4 +1,4 @@
-name: Deploy Glue Pipeline
+name: Deploy Glue Job
 
 on:
   push:
@@ -10,24 +10,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Zip project
-        run: |
-          zip -r hv_pipeline.zip hv_data_pipeline
-
-      - name: Configure AWS credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: us-east-1
+
+      - name: Debug folder structure
+        run: ls -R
+
+      - name: Zip Glue Job
+        run: |
+          cd src
+          zip -r ../hv_pipeline.zip . \
+            -x "__pycache__/*" \
+            -x "*.pyc"
 
       - name: Upload to S3
         run: |
           aws s3 cp hv_pipeline.zip s3://hv-challenge/scripts/hv_pipeline.zip
-
-      - name: Deploy main.py
-        run: |
-          aws s3 cp hv_data_pipeline/main_bronze.py s3://hv-challenge/scripts/main.py
