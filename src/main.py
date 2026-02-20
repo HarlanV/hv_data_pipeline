@@ -23,6 +23,7 @@ def main():
     # fato_viagem(spark, SILVER_PATH, GOLD_PATH)
 
     spark.stop()
+    print("execução de main concluida")
 
 
 if __name__ == "__main__":
