@@ -110,7 +110,9 @@ hv-data-pipeline/
 
 
 
-### Credentials
+### CI/CD (em construção)
+
+
 Por segurança, vamos utilizar o storage credentials do nosso catalog. Para isso vamos em 'catalgo' > 'System' > 'information_schema' > 'storage_catalog'. Clique em Create e selecione a opção SQL.
 Execute a consulta abaixo, substituindo os valores de Access key e Secret key pelos gerados anteriormente no IAM.
 
