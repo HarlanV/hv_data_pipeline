@@ -1,7 +1,10 @@
 from common.spark_session import get_spark
 from common.paths import RAW_PATH, BRONZE_PATH, SILVER_PATH, GOLD_PATH
 
-from bronze.bronze_mco import run as bronze_mco
+from bronze.codigo_interrupcao_viagem import run as bronze_interrupcao_viagem
+from bronze.empresa_operadora import run as bronze_operadora
+from bronze.mco import run as bronze_mco
+from bronze.tipo_dia import run as bronze_tipo_dia
 # from silver.silver_mapa_controle_oper import run as silver_mapa_controle_oper
 
 # from gold.dim_empresa import run as dim_empresa
@@ -15,7 +18,10 @@ def main():
     print("Iniciando execução de main.py (entrypoint)")
     spark = get_spark()
 
+    bronze_interrupcao_viagem(spark, RAW_PATH, BRONZE_PATH)
+    bronze_operadora(spark, RAW_PATH, BRONZE_PATH)
     bronze_mco(spark, RAW_PATH, BRONZE_PATH)
+    bronze_tipo_dia(spark, RAW_PATH, BRONZE_PATH)
     # silver_mapa_controle_oper(spark, BRONZE_PATH, SILVER_PATH)
 
     # dim_empresa(spark, SILVER_PATH, GOLD_PATH)
