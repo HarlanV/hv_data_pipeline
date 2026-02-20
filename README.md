@@ -1,18 +1,49 @@
 # # hv_data_pipeline
 Respositorio para desafio da BeAnalytics
 
-# Configuração de projeto
+## Resumo
 
-Para esse projeto usaremos como serviços principais os da Amazon AWS, devido disponibilidade de uso gratuito de alguns serviços por 12 meses + creditos para uso de teste.
+### Datasets e Fontes
+- Aqui foi utilizado o `Mapa de Controle Operacional (MCO)`, com todos os dados disponiveis de 2025 (até o mês 9)
+- Ao invés de um segundo dataframe, optou-se incluir tabelas disponiveis no PDF de dicionario de dados do MCO. 
+- Os dados foram salvos em csv para serem consumidos normalmente pelo pipeline
+
+### Objetivo
+Montar o pipeline desde o consumo da raw até a gold. Focaremos em uma unica fato com relações com as dimensões.
+
+### Ferramentas do projeto
+
+Para esse projeto usaremos como serviços principais os da Amazon AWS Free Tier. Foi escolhido a Amazon devido a gratuidade e principalmente devido a gratuidade por 12 meses
 Aqui usaremos:
 - S3 para o Data Lake
 - AWS Glue Job para o processamento
 - Pyspark + Delta
 
-Não usaremos ferramentas como Databricks devido a extrema limitação na versão gratuita, que impossibilita uma comunição adequada com Services de Lakes.
+### Arquitetura de Dados
+
+O pipeline segue o padrão de arquitetura em camadas (Medallion Architecture):
+
+- *Raw*: Arquivos CSV armazenados no S3
+- *Bronze*: Conversão para Parquet, mantendo dados no estado original
+- *Silver*: Dados tratados e padronizados utilizando Delta Lake
+- *Gold*: Modelagem dimensional (fatos e dimensões) em Delta Lake
+
+Estrutura simplificada:
+
+Raw (CSV - S3)  
+        |
+Bronze (Parquet - S3)  
+        |
+Silver (Delta - S3)  
+        |
+Gold (Delta - S3)
+
+#### Chaves de acesso S3
+Nestre processo seletivo, para possibilitar avaliação, as chaves geradas para usuário IAM serão disponibilizadas via e-mail na conclusão do desafio. Por segurança, será mantido funcional pelos 7 dias seguintes.
 
 
-## Configuração Inicial
+## Configurações de Projeto
+Aqui um passo a passo com as principais etapas de configuração do ambiente do projeto, para caso de possivel replicação.
 
 ### S3
 - Foi definido a região de `us-east-1` para o bucket por motivos de convenção apenas.
@@ -45,7 +76,6 @@ Esta policy concente permissões de:
 - Leitura + escrita + deleção para silver
 - Leitura + escrita + deleção para gold
 
-
 #### Credentials do usuário IAM (Access key e Secret access key)
 - No usuário IAM criado, vá em 'Security Credentials' e crie uma 'Access key'
 - Selecione Application Running outside AWS
@@ -65,53 +95,40 @@ Aqui usaremos a police padrão `AWSGlueServiceRole`. Também incluiremos uma pol
 - Leitura + escrita + deleção para silver
 - Leitura + escrita + deleção para gold
 
-#### Chaves de acesso
-Nestre processo seletivo, para possibilitar avaliação, as chaves geradas para usuário IAM serão disponibilizadas via e-mail na conclusão do desafio. Por segurança, será mantido funcional pelos 7 dias seguintes.
+
 
 ### Glue
 
 #### Job Details
 Para este projeto, foram configurados o seguinte:
 
+- Engine: Spark
+- Python version: 3.11 (Glue 5.1 runtime)
+- Job type: Spark ETL
+- Worker type: G.1X
+- Number of workers: 2 (minimum required for Glue 5.1)
+- Auto Scaling: enabled
+- CloudWatch logs: enabled
+- Spark UI: enabled
+- Job metrics: enabled
+- Job insights: disabled (cost optimization)
+- Glue Data Catalog: enabled
+- Job bookmark: disabled
 - IAM Role: role criado na etapa do S3
 - Glue Version: 5.1
 - 2 workers (minimo permitido)
 - Retries: 0 (devido custo)
 - timeout: 10 min
+- Script path: `s3://hv-challenge/scripts/`
+- Script filename: `main.py`
+- Python library path: `s3://hv-challenge/scripts/hv_pipeline.zip`
 
 
-#### Arquitetura (em construção):
+### CI/CD:
+- GitGub Actions
+- Trigger automático a cada push na branch `main`
+- Build do `hv_pipeline.zip` contendo as camadas (bronze, silver, gold, common)
+- Upload do ZIP para o S3 (`scripts/`)
+- Upload do `main.py` como entrypoint do Glue Job
 
-hv-data-pipeline/
-│
-├── bronze/
-│   ├── bronze_mco.py
-│   └── bronze_mapa_empresa.py
-│
-├── silver/
-│   ├── silver_mapa_controle_oper.py
-│   └── silver_mapa_empresa.py
-│
-├── gold/
-│   ├── dim_empresa.py
-│   ├── dim_tempo.py
-│   ├── dim_justificativa.py
-│   └── fato_viagem.py
-│
-├── common/
-│   ├── spark_session.py
-│   ├── paths.py
-│   └── utils.py
-│
-├── main.py
-└── tests/
-
-
-
-
-
-### CI/CD (em construção)
-
-
-Por segurança, vamos utilizar o storage credentials do nosso catalog. Para isso vamos em 'catalgo' > 'System' > 'information_schema' > 'storage_catalog'. Clique em Create e selecione a opção SQL.
-Execute a consulta abaixo, substituindo os valores de Access key e Secret key pelos gerados anteriormente no IAM.
+A execução do job não é automática após o deploy, garantindo maior controle operacional e evitando execuções acidentais em ambiente produtivo.
