@@ -1,31 +1,38 @@
-from pyspark.sql import DataFrame
+from datetime import datetime, timezone
+from pyspark.sql import functions as F
+from common.history_cleaner import HistoryCleaner
 
 
 def run(spark, raw_path: str, bronze_path: str) -> None:
     dataset = "mapa_controle_operacional"
+    raw_path = f"{raw_path}/{dataset}/*.csv"
+    bronze_path = f"{bronze_path}/{dataset}"
 
-    input_path = f"{raw_path}/{dataset}/*.csv"
-    output_path = f"{bronze_path}/{dataset}"
+    # Timestamp processamento
+    now_utc = datetime.now(timezone.utc)
+    run_id = now_utc.strftime("%Y-%m-%dT%H-%M-%SZ")
 
-    print(f"Lendo arquivos CSV de: {input_path}")
+    print(f"Lendo arquivos CSV de: {raw_path}")
+    output_run_path = f"{bronze_path}/runs/{run_id}/"
 
-    df: DataFrame = (
+    df = (
         spark.read
         .option("header", "true")
-        .option("inferSchema", "true")
+        .option("sep", ";")
         .option("multiLine", "false")
-        .csv(input_path)
+        .csv(raw_path)
+        .withColumn("processing_timestamp", F.current_timestamp())
     )
 
-    total_rows = df.count()
-    print(f"Total de registros lidos: {total_rows}")
-
-    print(f"Salvando dados em formato parquet em: {output_path}")
-
+    # Escreve SOMENTE este run
     (
         df.write
         .mode("overwrite")
-        .parquet(output_path)
+        .parquet(output_run_path)
     )
 
-    print("Camada bronze finalizada.")
+    # Limpa histórico ultimos 3 dias OU 3 execuções (o que for maior)
+    cleaner = HistoryCleaner(keep_days=3, keep_min_runs=3)
+    cleaner.perform_cleanup(bronze_address=bronze_path, now_ts=now_utc)
+
+    print(f"Bronze OK. Run atual: {run_id}")
