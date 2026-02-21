@@ -9,16 +9,7 @@ def run(spark, gold_path: str):
     table_path = f"{gold_path}/{table_name}/"
 
     spark.sql(f"CREATE DATABASE IF NOT EXISTS {database}")
-
-    # 🔹 Garantir UNKNOWN na dimensão
-    spark.sql("""
-        INSERT INTO gold_mobilidade.dim_empresa
-        SELECT -1, 'UNKNOWN', 'Empresa Desconhecida', current_timestamp()
-        WHERE NOT EXISTS (
-            SELECT 1 FROM gold_mobilidade.dim_empresa WHERE sk_empresa = -1
-        )
-    """)
-
+    
     # Extract
     mco_df = spark.table("silver_mobilidade.mapa_controle_operacional")
     dim_empresa_df = spark.table("gold_mobilidade.dim_empresa")

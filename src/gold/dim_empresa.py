@@ -13,7 +13,6 @@ def run(spark, gold_path: str):
     spark.sql(f"CREATE DATABASE IF NOT EXISTS {database}")
     spark.sql(f"USE {database}")
 
-
     empresa_df = spark.table("silver_mobilidade.empresa_operadora")
 
     transformed_df = (
@@ -23,19 +22,18 @@ def run(spark, gold_path: str):
             F.col("nome_empresa").cast("string"),
             F.current_timestamp().alias("_data_processamento")
         )
-        .dropDuplicates(["codigo_empresa"])  # importante p/ merge 1:1
+        .dropDuplicates(["codigo_empresa"])
         .withColumn("sk_empresa", F.xxhash64("codigo_empresa"))
-        # ✅ garante ordem/colunas iguais ao target
         .select("sk_empresa", "codigo_empresa", "nome_empresa", "_data_processamento")
     )
 
     # Cria tabela, caso não exista
     if not spark.catalog.tableExists(delta_table_name):
         (
-            transformed_df.limit(0)           # só schema, não grava dados
+            transformed_df.limit(0)
             .write.format("delta")
             .mode("overwrite")
-            .option("path", delta_table_path) # registra no catálogo com LOCATION
+            .option("path", delta_table_path)
             .saveAsTable(delta_table_name)
         )
 
@@ -62,8 +60,40 @@ def run(spark, gold_path: str):
                 "_data_processamento": "current_timestamp()"
             }
         )
-        .whenNotMatchedBySourceDelete()
+        # NÃO deletar a UNKNOWN
+        .whenNotMatchedBySourceDelete(condition="target.sk_empresa <> -1")
         .execute()
     )
 
-    print("dim_empresa atualizada com sucesso")
+    # Garante a empresa desconhecida (sk = -1) na dimensão
+    unknown_df = spark.createDataFrame(
+        [(-1, "UNKNOWN", "Empresa Desconhecida")],
+        ["sk_empresa", "codigo_empresa", "nome_empresa"]
+    ).withColumn("_data_processamento", F.current_timestamp())
+
+    (
+        DeltaTable.forName(spark, delta_table_name)
+        .alias("target")
+        .merge(
+            unknown_df.alias("source"),
+            "target.sk_empresa = source.sk_empresa"
+        )
+        .whenMatchedUpdate(
+            set={
+                "codigo_empresa": "source.codigo_empresa",
+                "nome_empresa": "source.nome_empresa",
+                "_data_processamento": "current_timestamp()"
+            }
+        )
+        .whenNotMatchedInsert(
+            values={
+                "sk_empresa": "source.sk_empresa",
+                "codigo_empresa": "source.codigo_empresa",
+                "nome_empresa": "source.nome_empresa",
+                "_data_processamento": "current_timestamp()"
+            }
+        )
+        .execute()
+    )
+
+    print("dim_empresa atualizada com sucesso (incluindo UNKNOWN)")
