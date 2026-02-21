@@ -25,6 +25,7 @@ def run(spark, raw_path: str, bronze_path: str) -> None:
         .withColumn("processing_timestamp", F.current_timestamp())
     )
 
+    # Tratamento minimo para podermos consumir na silver sem erros
     df = df.toDF(*[normalize_column(c) for c in df.columns])
     
     # Escreve SOMENTE este run

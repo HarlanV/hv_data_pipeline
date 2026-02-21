@@ -24,8 +24,8 @@ def run(spark, bucket_name: str = "hv-challenge") -> None:
     # Extract
     database = "silver_mobilidade"
     domain = "mobilidade"
-    table_name = "mapa_controle_operacional"
-    dataset = "mapa_controle_operacional"
+    table_name = "interrupcao_viagem"
+    dataset = "interrupcao_viagem"
     runs_root_prefix = f"bronze/{dataset}/runs/"
     print(f'Iniciando silver {database}')
 
@@ -35,15 +35,13 @@ def run(spark, bucket_name: str = "hv-challenge") -> None:
 
     # Transform
     transformed_df = bronze_df.select(
-
-        # dd/MM/yyyy -> int yyyymmdd
-        F.date_format(
-            F.to_date(F.col("viagem"), "dd/MM/yyyy"),
-            "yyyyMMdd"
-        ).cast("int").alias("data_viagem"),
-        F.col("linha").cast(StringType()).alias("numero_linha"),
-        F.col("empresa_operadora").cast(StringType()).alias("codigo_empresa"),
-        F.col("tipo_dia").cast(StringType()).alias("tipo_dia"),
+        #Obs: aqui o tipo_de_dia estava assim no pdf original, não é erro de modelagem
+        F.col("codigo_evento").cast(IntegerType()).alias("codigo_evento"),
+        F.when(F.col("codigo_viagem") == "VN", "Viagem Não Realizada")
+        .when(F.col("codigo_viagem") == "VI", "Viagem Interrompida")
+        .otherwise("Desconhecido")
+        .alias("realizacao_viagem"),
+        F.col("descricao").cast(StringType()).alias("descricao"),
     )
     # Load
     spark.sql(f"CREATE DATABASE IF NOT EXISTS {database}")

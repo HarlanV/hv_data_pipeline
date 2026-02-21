@@ -5,7 +5,10 @@ from bronze.codigo_interrupcao_viagem import run as bronze_interrupcao_viagem
 from bronze.empresa_operadora import run as bronze_operadora
 from bronze.mco import run as bronze_mco
 from bronze.tipo_dia import run as bronze_tipo_dia
-from silver.mapa_controle_operacional import run as silver_mapa_controle_oper
+from silver.empresa_operadora import run as silver_empresa_operadora
+from src.silver.interrupcao_viagem import run as silver_interrupcao_viagem
+from silver.mapa_controle_operacional import run as silver_mapa_controle_operacional
+from silver.tipo_dia import run as silver_tipo_dia
 
 # from gold.dim_empresa import run as dim_empresa
 # from gold.dim_tempo import run as dim_tempo
@@ -19,13 +22,16 @@ def main():
     spark = get_spark()
 
     # Bronze [check]
-    bronze_interrupcao_viagem(spark, RAW_PATH, BRONZE_PATH)
-    bronze_operadora(spark, RAW_PATH, BRONZE_PATH)
-    bronze_mco(spark, RAW_PATH, BRONZE_PATH)
-    bronze_tipo_dia(spark, RAW_PATH, BRONZE_PATH)
+    # bronze_interrupcao_viagem(spark, RAW_PATH, BRONZE_PATH)
+    # bronze_operadora(spark, RAW_PATH, BRONZE_PATH)
+    # bronze_mco(spark, RAW_PATH, BRONZE_PATH)
+    # bronze_tipo_dia(spark, RAW_PATH, BRONZE_PATH)
     
     # Silver [doing]
-    silver_mapa_controle_oper(spark)#, SILVER_PATH)
+    silver_empresa_operadora(spark)
+    silver_interrupcao_viagem(spark)
+    silver_mapa_controle_operacional(spark)
+    silver_tipo_dia(spark)#, SILVER_PATH)
     
     # Gold[pendente]
     # dim_empresa(spark, SILVER_PATH, GOLD_PATH)

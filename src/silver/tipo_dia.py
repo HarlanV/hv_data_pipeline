@@ -24,8 +24,8 @@ def run(spark, bucket_name: str = "hv-challenge") -> None:
     # Extract
     database = "silver_mobilidade"
     domain = "mobilidade"
-    table_name = "mapa_controle_operacional"
-    dataset = "mapa_controle_operacional"
+    table_name = "tipo_dia"
+    dataset = "tipo_dia"
     runs_root_prefix = f"bronze/{dataset}/runs/"
     print(f'Iniciando silver {database}')
 
@@ -35,15 +35,8 @@ def run(spark, bucket_name: str = "hv-challenge") -> None:
 
     # Transform
     transformed_df = bronze_df.select(
-
-        # dd/MM/yyyy -> int yyyymmdd
-        F.date_format(
-            F.to_date(F.col("viagem"), "dd/MM/yyyy"),
-            "yyyyMMdd"
-        ).cast("int").alias("data_viagem"),
-        F.col("linha").cast(StringType()).alias("numero_linha"),
-        F.col("empresa_operadora").cast(StringType()).alias("codigo_empresa"),
-        F.col("tipo_dia").cast(StringType()).alias("tipo_dia"),
+        F.col("tipo_de_dia").cast(IntegerType()).alias("codigo_tipo_dia"),
+        F.col("descricao").cast(StringType()).alias("tipo_dia"),
     )
     # Load
     spark.sql(f"CREATE DATABASE IF NOT EXISTS {database}")

@@ -13,20 +13,25 @@ Montar o pipeline desde o consumo da raw até a gold. Focaremos em uma unica fat
 
 ### Ferramentas do projeto
 
+### Técnicas e Regras aplicadas
+Aqui usamos a arquitetura Medallion com as camadas Gold, Silver e Bronze, sem necessidade de views. Para facilitar as consultas e integração, 
+
 Para esse projeto usaremos como serviços principais os da Amazon AWS Free Tier. Foi escolhido a Amazon devido a gratuidade e principalmente devido a gratuidade por 12 meses
 Aqui usaremos:
 - S3 para o Data Lake
 - AWS Glue Job para o processamento
+- Athena para visualização de tabelas
 - Pyspark + Delta
 
 ### Arquitetura de Dados
-
-O pipeline segue o padrão de arquitetura em camadas (Medallion Architecture):
+Este projeto segue a arquitetura Medallion (Bronze, Silver e Gold) utilizando AWS S3 e AWS Glue.
 
 - *Raw*: Arquivos CSV armazenados no S3
 - *Bronze*: Conversão para Parquet, mantendo dados no estado original
 - *Silver*: Dados tratados e padronizados utilizando Delta Lake
 - *Gold*: Modelagem dimensional (fatos e dimensões) em Delta Lake
+
+As camadas Silver e Gold foram registradas no catalog por exigirem governança, controle estrutural e otimização para consumo analítico. A camada Bronze, por conter apenas dados brutos, sem controle de schema ou regras de negócio, não possui catalog.
 
 Estrutura simplificada:
 
@@ -37,6 +42,9 @@ Bronze (Parquet - S3)
 Silver (Delta - S3)  
         |
 Gold (Delta - S3)
+
+
+
 
 #### Chaves de acesso S3
 Nestre processo seletivo, para possibilitar avaliação, as chaves geradas para usuário IAM serão disponibilizadas via e-mail na conclusão do desafio. Por segurança, será mantido funcional pelos 7 dias seguintes.
