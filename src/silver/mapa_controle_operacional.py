@@ -28,9 +28,12 @@ def run(spark, bronze_bucket: str = "hv-challenge") -> None:
     dataset = "mapa_controle_operacional"
     runs_root_prefix = f"bronze/{dataset}/runs/"
     latest_run_s3 = _latest_run_path(bronze_bucket, runs_root_prefix)
-
+    
     bronze_df = spark.read.parquet(latest_run_s3)
-
+    try:
+        print(bronze_df.columns)
+    except:
+        print("iniciando transformação")
     # Transform
     transformed_df = bronze_df.select(
 
