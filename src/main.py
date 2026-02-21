@@ -25,7 +25,7 @@ def main():
     # bronze_tipo_dia(spark, RAW_PATH, BRONZE_PATH)
     
     # Silver [doing]
-    silver_mapa_controle_oper(spark, BRONZE_PATH)#, SILVER_PATH)
+    silver_mapa_controle_oper(spark)#, SILVER_PATH)
     
     # Gold[pendente]
     # dim_empresa(spark, SILVER_PATH, GOLD_PATH)
