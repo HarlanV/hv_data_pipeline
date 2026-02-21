@@ -19,10 +19,10 @@ def main():
     spark = get_spark()
 
     # Bronze [check]
-    # bronze_interrupcao_viagem(spark, RAW_PATH, BRONZE_PATH)
-    # bronze_operadora(spark, RAW_PATH, BRONZE_PATH)
-    # bronze_mco(spark, RAW_PATH, BRONZE_PATH)
-    # bronze_tipo_dia(spark, RAW_PATH, BRONZE_PATH)
+    bronze_interrupcao_viagem(spark, RAW_PATH, BRONZE_PATH)
+    bronze_operadora(spark, RAW_PATH, BRONZE_PATH)
+    bronze_mco(spark, RAW_PATH, BRONZE_PATH)
+    bronze_tipo_dia(spark, RAW_PATH, BRONZE_PATH)
     
     # Silver [doing]
     silver_mapa_controle_oper(spark)#, SILVER_PATH)
