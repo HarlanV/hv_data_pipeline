@@ -7,19 +7,20 @@ def run(spark, gold_path: str):
     # Catalog definido manualmente
 
     mco_df = spark.table("silver_mobilidade.seniorerp.mapa_controle_operacional")
+    dim_empresa_df = spark.table("silver_mobilidade.seniorerp.dim_empresa")
 
-    # Aqui podemos aplicar regras de negocio mais complexas.
-    # Nesse desafio foi focado mais na arquitetura e menos em tratamento complexos
-    # pra isso 
     fato_viagem = (
 
         mco_df.alias("operacional")
+        .join(
+            dim_empresa_df.alias("emp"),
+            ["codigo_empresa"],
+            "left",
+        )
         .select(
-            F.col("data_viagem").alias("sk_data"),
-            F.col("LINHA").alias("linha_codigo"),
-            F.col("VIAGEM").alias("viagem_codigo"),
-            F.col("KM_RODADO").cast("double").alias("km_rodado"),
-            F.col("PASSAGEIROS").cast("int").alias("qtd_passageiros"),
+            F.col("data_viagem").alias("sk_data"), #datas padronizadas como aaaammdd
+            F.col("emp.sk_empresa"),
+            F.col("numero_linha").alias("codigo_linha"),
             F.current_timestamp().alias("_data_processamento")
         )
     )
