@@ -25,7 +25,7 @@ def run(spark, bucket_name: str = "hv-challenge") -> None:
     database = "silver_mobilidade"
     domain = "mobilidade"
     table_name = "interrupcao_viagem"
-    dataset = "interrupcao_viagem"
+    dataset = "codigo_interrupcao_viagem"
     runs_root_prefix = f"bronze/{dataset}/runs/"
     print(f'Iniciando silver {database}')
 
