@@ -20,20 +20,17 @@ def _latest_run_path(bucket: str, runs_root_prefix: str) -> str:
 
 
 def run(spark, bronze_bucket: str = "hv-challenge") -> None:
-    print('Iniciando silver')
+    
     # Extract
-    dest_catalog = "silver"
-    schemaname = "mobilidade"
+    database = "silver_mobilidade"
     table_name = "mapa_controle_operacional"
     dataset = "mapa_controle_operacional"
     runs_root_prefix = f"bronze/{dataset}/runs/"
+    print(f'Iniciando silver {database}')
     latest_run_s3 = _latest_run_path(bronze_bucket, runs_root_prefix)
     
     bronze_df = spark.read.parquet(latest_run_s3)
-    try:
-        print(bronze_df.columns)
-    except:
-        print("iniciando transformação")
+
     # Transform
     transformed_df = bronze_df.select(
 
@@ -46,25 +43,19 @@ def run(spark, bronze_bucket: str = "hv-challenge") -> None:
         F.col("EMPRESA OPERADORA").cast(StringType()).alias("codigo_empresa"),
         F.col("TIPO DIA").cast(StringType()).alias("tipo_dia"),
     )
-
     # Load
-    spark.sql(
-        f"CREATE DATABASE IF NOT EXISTS {dest_catalog}.{schemaname}"
-    )
-    spark.sql(
-        f"""
-            CREATE TABLE IF NOT EXISTS {dest_catalog}.{schemaname}.{table_name}
-            USING DELTA
-        """
-    )
+    spark.sql(f"CREATE DATABASE IF NOT EXISTS {database}")
+    spark.sql(f"USE {database}")
+
+    full_table_name = f"{database}.{table_name}"
 
     (
         transformed_df
         .write
         .format("delta")
         .mode("overwrite")
-        .option("mergeSchema", "true")
-        .saveAsTable(f"{dest_catalog}.{schemaname}.{table_name}")
+        .option("overwriteSchema", "true")
+        .saveAsTable(full_table_name)
     )
 
-    print(f"Silver criada com sucesso!")
+    print(f"Silver criada com sucesso: {full_table_name}")
