@@ -12,7 +12,7 @@ from silver.tipo_dia import run as silver_tipo_dia
 
 from gold.dim_data import run as dim_data
 from gold.dim_empresa import run as dim_empresa
-# from gold.dim_empresa import run as dim_empresa
+# from gold.fato_viagens import run as fato_viagens
 # from gold.dim_tempo import run as dim_tempo
 # from gold.dim_justificativa import run as dim_justificativa
 # from gold.fato_viagem import run as fato_viagem
@@ -36,11 +36,9 @@ def main():
     # silver_tipo_dia(spark, SILVER_PATH)
     
     # Gold[pendente]
-    dim_data(spark, GOLD_PATH)
+    # dim_data(spark, GOLD_PATH)
     dim_empresa(spark, SILVER_PATH)
-    # dim_tempo(spark, SILVER_PATH, GOLD_PATH)
-    # dim_justificativa(spark, SILVER_PATH, GOLD_PATH)
-    # fato_viagem(spark, SILVER_PATH, GOLD_PATH)
+    # fato_viagens(spark, SILVER_PATH)
 
     spark.stop()
     print("execução de main concluida")

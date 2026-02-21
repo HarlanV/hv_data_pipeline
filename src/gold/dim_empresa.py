@@ -6,11 +6,13 @@ def run(spark, gold_path: str):
 
     database = "gold_mobilidade"
     table_name = "dim_empresa"
-    delta_table_path = f"{gold_path}/{table_name}"
+
+    delta_table_path = f"{gold_path}/{table_name}/"
     delta_table_name = f"{database}.{table_name}"
 
     spark.sql(f"CREATE DATABASE IF NOT EXISTS {database}")
     spark.sql(f"USE {database}")
+
 
     empresa_df = spark.table("silver_mobilidade.empresa_operadora")
 
@@ -21,24 +23,21 @@ def run(spark, gold_path: str):
             F.col("nome_empresa").cast("string"),
             F.current_timestamp().alias("_data_processamento")
         )
-        .dropDuplicates(["codigo_empresa"])   # importante p/ merge 1:1
+        .dropDuplicates(["codigo_empresa"])  # importante p/ merge 1:1
+        .withColumn("sk_empresa", F.xxhash64("codigo_empresa"))
+        # ✅ garante ordem/colunas iguais ao target
+        .select("sk_empresa", "codigo_empresa", "nome_empresa", "_data_processamento")
     )
 
-    # cria tabela sem identity
-    spark.sql(f"""
-        CREATE TABLE IF NOT EXISTS {delta_table_name} (
-            sk_empresa BIGINT,
-            codigo_empresa STRING,
-            nome_empresa STRING,
-            _data_processamento TIMESTAMP
+    # Cria tabela, caso não exista
+    if not spark.catalog.tableExists(delta_table_name):
+        (
+            transformed_df.limit(0)           # só schema, não grava dados
+            .write.format("delta")
+            .mode("overwrite")
+            .option("path", delta_table_path) # registra no catálogo com LOCATION
+            .saveAsTable(delta_table_name)
         )
-        USING DELTA
-        LOCATION '{delta_table_path}'
-    """)
-
-    # gera SK estável a partir do codigo (reprodutível)
-    # xxhash64 retorna long (bigint)
-    transformed_df = transformed_df.withColumn("sk_empresa", F.xxhash64("codigo_empresa"))
 
     delta_table = DeltaTable.forName(spark, delta_table_name)
 
