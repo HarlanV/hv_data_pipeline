@@ -4,7 +4,7 @@ from common.history_cleaner import HistoryCleaner
 from common.helpers_tools import normalize_column
 
 
-def run(spark, raw_path: str, bronze_path: str) -> None:
+def run(spark,  bronze_path: str, raw_path: str) -> None:
     dataset = "tipo_dia"
     raw_path = f"{raw_path}/{dataset}/*.csv"
     bronze_path = f"{bronze_path}/{dataset}"

@@ -4,7 +4,7 @@ from pyspark.sql.types import StringType, ShortType, IntegerType, DateType
 from common.helpers_tools import latest_run_path
 
 
-def run(spark, silver_path, bucket_name: str = "hv-challenge") -> None:
+def run(spark, silver_path, bronze_path, bucket_name: str = "hv-challenge") -> None:
     
     # Extract
     database = "silver_mobilidade"

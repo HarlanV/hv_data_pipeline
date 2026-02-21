@@ -1,6 +1,7 @@
 from pyspark.sql import functions as F
 
-def run(spark, gold_path, bucket_name: str = "hv-challenge") -> None:
+
+def run(spark, gold_path: str, silver_path:str):
     database = "gold_comum"
     domain = "mobilidade"
     table_name = "dim_data"

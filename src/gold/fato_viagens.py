@@ -1,6 +1,6 @@
 from pyspark.sql import functions as F
 
-def run(spark, gold_path: str):
+def run(spark, gold_path: str, silver_path:str):
     print("Iniciando geração da fato_viagem")
 
     database = "gold_mobilidade"
@@ -9,7 +9,7 @@ def run(spark, gold_path: str):
     table_path = f"{gold_path}/{table_name}/"
 
     spark.sql(f"CREATE DATABASE IF NOT EXISTS {database}")
-    
+
     # Extract
     mco_df = spark.table("silver_mobilidade.mapa_controle_operacional")
     dim_empresa_df = spark.table("gold_mobilidade.dim_empresa")
