@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from pyspark.sql import functions as F
 from common.history_cleaner import HistoryCleaner
+from common.helpers_tools import normalize_column
 
 
 def run(spark, raw_path: str, bronze_path: str) -> None:
@@ -23,6 +24,8 @@ def run(spark, raw_path: str, bronze_path: str) -> None:
         .csv(raw_path)
         .withColumn("processing_timestamp", F.current_timestamp())
     )
+
+    df = df.toDF(*[normalize_column(c) for c in df.columns])
 
     # Escreve SOMENTE este run
     (

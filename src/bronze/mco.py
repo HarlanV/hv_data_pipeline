@@ -24,7 +24,9 @@ def run(spark, raw_path: str, bronze_path: str) -> None:
         .csv(raw_path)
         .withColumn("processing_timestamp", F.current_timestamp())
     )
+
     df = df.toDF(*[normalize_column(c) for c in df.columns])
+    
     # Escreve SOMENTE este run
     (
         df.write
