@@ -37,7 +37,7 @@ def main():
     
     # Gold[pendente]
     dim_data(spark, GOLD_PATH)
-    dim_empresa(spark, SILVER_PATH, GOLD_PATH)
+    dim_empresa(spark, SILVER_PATH)
     # dim_tempo(spark, SILVER_PATH, GOLD_PATH)
     # dim_justificativa(spark, SILVER_PATH, GOLD_PATH)
 
