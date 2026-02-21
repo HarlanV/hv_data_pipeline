@@ -4,24 +4,28 @@ Respositorio para desafio da BeAnalytics
 ## Resumo
 
 ### Datasets e Fontes
+- Fonte principal: https://dados.pbh.gov.br/group/mobilidade-urbana
 - Aqui foi utilizado o `Mapa de Controle Operacional (MCO)`, com todos os dados disponiveis de 2025 (até o mês 9)
-- Ao invés de um segundo dataframe, optou-se incluir tabelas disponiveis no PDF de dicionario de dados do MCO. 
-- Os dados foram salvos em csv para serem consumidos normalmente pelo pipeline
+- Ao invés de um segundo dataframe, optou-se incluir tabelas disponiveis no PDF de dicionario de dados do MCO.
+- Os dados foram salvos em csv e subimos manualmente no S3
 
 ### Objetivo
 Montar o pipeline desde o consumo da raw até a gold. Focaremos em uma unica fato com relações com as dimensões.
 
 ### Ferramentas do projeto
+- S3 para o Data Lake
+- AWS Glue Job para o processamento - Python + Pyspark
+- Parket e Delta para as tabelas
+- State Machine para orquestração
+- Athena para visualização de tabelas
 
 ### Técnicas e Regras aplicadas
 Aqui usamos a arquitetura Medallion com as camadas Gold, Silver e Bronze, sem necessidade de views. Para facilitar as consultas e integração, 
 
 Para esse projeto usaremos como serviços principais os da Amazon AWS Free Tier. Foi escolhido a Amazon devido a gratuidade e principalmente devido a gratuidade por 12 meses
 Aqui usaremos:
-- S3 para o Data Lake
-- AWS Glue Job para o processamento
-- Athena para visualização de tabelas
-- Pyspark + Delta
+
+
 
 ### Arquitetura de Dados
 Este projeto segue a arquitetura Medallion (Bronze, Silver e Gold) utilizando AWS S3 e AWS Glue.
@@ -43,7 +47,8 @@ Silver (Delta - S3)
         |
 Gold (Delta - S3)
 
-
+### Configurações de ambiente
+Para facilitar reprodução e avaliação, exportamos as configurações para a pasta `docs\`
 
 
 #### Chaves de acesso S3

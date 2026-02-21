@@ -24,13 +24,13 @@ def run(spark, gold_path: str):
         )
     )
 
+    # 🔥 CORREÇÃO AQUI (removido CONSTRAINT)
     spark.sql(f"""
         CREATE TABLE IF NOT EXISTS {delta_table_name} (
             sk_empresa BIGINT GENERATED ALWAYS AS IDENTITY,
             codigo_empresa STRING,
             nome_empresa STRING,
-            _data_processamento TIMESTAMP,
-            CONSTRAINT pk_sk_empresa PRIMARY KEY (sk_empresa)
+            _data_processamento TIMESTAMP
         )
         USING DELTA
         LOCATION '{delta_table_path}'

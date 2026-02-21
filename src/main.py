@@ -40,7 +40,6 @@ def main():
     dim_empresa(spark, SILVER_PATH)
     # dim_tempo(spark, SILVER_PATH, GOLD_PATH)
     # dim_justificativa(spark, SILVER_PATH, GOLD_PATH)
-
     # fato_viagem(spark, SILVER_PATH, GOLD_PATH)
 
     spark.stop()
