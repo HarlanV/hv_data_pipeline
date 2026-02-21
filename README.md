@@ -11,6 +11,10 @@ Respositorio para desafio da BeAnalytics
 
 ### Objetivo
 Montar o pipeline desde o consumo da raw até a gold. Focaremos em uma unica fato com relações com as dimensões.
+Ao final devemos ter
+- um processo totalmente em cloud (AWS)
+- processo de CI/CD e deploy automatico
+- 
 
 ### Ferramentas do projeto
 - S3 para o Data Lake
@@ -18,6 +22,7 @@ Montar o pipeline desde o consumo da raw até a gold. Focaremos em uma unica fat
 - Parket e Delta para as tabelas
 - State Machine para orquestração
 - Athena para visualização de tabelas
+- CloudWatch para monitoramento de Logs e Erros
 
 ### Técnicas e Regras aplicadas
 Aqui usamos a arquitetura Medallion com as camadas Gold, Silver e Bronze, sem necessidade de views. Para facilitar as consultas e integração, 
@@ -49,10 +54,6 @@ Gold (Delta - S3)
 
 ### Configurações de ambiente
 Para facilitar reprodução e avaliação, exportamos as configurações para a pasta `docs\`
-
-
-#### Chaves de acesso S3
-Nestre processo seletivo, para possibilitar avaliação, as chaves geradas para usuário IAM serão disponibilizadas via e-mail na conclusão do desafio. Por segurança, será mantido funcional pelos 7 dias seguintes.
 
 
 ## Configurações de Projeto
