@@ -19,8 +19,8 @@ def _latest_run_path(bucket: str, runs_root_prefix: str) -> str:
     return f"s3://{bucket}/{latest_prefix}"
 
 
-def run_silver(spark, bronze_bucket: str = "hv-challenge") -> None:
-
+def run(spark, bronze_bucket: str = "hv-challenge") -> None:
+    print('Iniciando silver')
     # Extract
     dest_catalog = "silver"
     schemaname = "mobilidade"
