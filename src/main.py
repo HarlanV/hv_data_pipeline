@@ -6,7 +6,7 @@ from bronze.empresa_operadora import run as bronze_operadora
 from bronze.mco import run as bronze_mco
 from bronze.tipo_dia import run as bronze_tipo_dia
 from silver.empresa_operadora import run as silver_empresa_operadora
-from src.silver.interrupcao_viagem import run as silver_interrupcao_viagem
+from silver.interrupcao_viagem import run as silver_interrupcao_viagem
 from silver.mapa_controle_operacional import run as silver_mapa_controle_operacional
 from silver.tipo_dia import run as silver_tipo_dia
 
