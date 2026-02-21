@@ -10,6 +10,7 @@ from src.silver.interrupcao_viagem import run as silver_interrupcao_viagem
 from silver.mapa_controle_operacional import run as silver_mapa_controle_operacional
 from silver.tipo_dia import run as silver_tipo_dia
 
+from gold.dim_data import run as dim_data
 # from gold.dim_empresa import run as dim_empresa
 # from gold.dim_tempo import run as dim_tempo
 # from gold.dim_justificativa import run as dim_justificativa
@@ -24,7 +25,7 @@ def main():
     # Bronze [check]
     # bronze_interrupcao_viagem(spark, RAW_PATH, BRONZE_PATH)
     # bronze_operadora(spark, RAW_PATH, BRONZE_PATH)
-    # bronze_mco(spark, RAW_PATH, BRONZE_PATH)
+    bronze_mco(spark, RAW_PATH, BRONZE_PATH)
     # bronze_tipo_dia(spark, RAW_PATH, BRONZE_PATH)
     
     # Silver [doing]
@@ -34,6 +35,7 @@ def main():
     silver_tipo_dia(spark)#, SILVER_PATH)
     
     # Gold[pendente]
+    dim_data(spark, SILVER_PATH, GOLD_PATH)
     # dim_empresa(spark, SILVER_PATH, GOLD_PATH)
     # dim_tempo(spark, SILVER_PATH, GOLD_PATH)
     # dim_justificativa(spark, SILVER_PATH, GOLD_PATH)
