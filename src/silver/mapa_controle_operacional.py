@@ -19,16 +19,18 @@ def _latest_run_path(bucket: str, runs_root_prefix: str) -> str:
     return f"s3://{bucket}/{latest_prefix}"
 
 
-def run(spark, bronze_bucket: str = "hv-challenge") -> None:
+def run(spark, bucket_name: str = "hv-challenge") -> None:
     
     # Extract
     database = "silver_mobilidade"
+    domain = "mobilidade"
     table_name = "mapa_controle_operacional"
     dataset = "mapa_controle_operacional"
     runs_root_prefix = f"bronze/{dataset}/runs/"
     print(f'Iniciando silver {database}')
-    latest_run_s3 = _latest_run_path(bronze_bucket, runs_root_prefix)
-    
+
+    # Consulta a ultima bronze executada
+    latest_run_s3 = _latest_run_path(bucket_name, runs_root_prefix)
     bronze_df = spark.read.parquet(latest_run_s3)
 
     # Transform
@@ -49,13 +51,17 @@ def run(spark, bronze_bucket: str = "hv-challenge") -> None:
 
     full_table_name = f"{database}.{table_name}"
 
+    # Arquitetura: s3://<bucket>/silver/<domain>/<table_name>/
+    table_s3_path = f"s3://{bucket_name}/silver/{domain}/{table_name}/"
+
     (
         transformed_df
         .write
         .format("delta")
         .mode("overwrite")
         .option("overwriteSchema", "true")
+        .option("path", table_s3_path)
         .saveAsTable(full_table_name)
     )
 
-    print(f"Silver criada com sucesso: {full_table_name}")
+    print(f"Silver criada com sucesso: {full_table_name} em {table_s3_path}")
