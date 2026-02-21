@@ -1,33 +1,50 @@
 from pyspark.sql import functions as F
 
-
 def run(spark, gold_path: str):
-    print("Iniciando geração da fato_viagem (via Data Catalog)")
+    print("Iniciando geração da fato_viagem")
 
-    # Catalog definido manualmente
+    database = "gold_mobilidade"
+    table_name = "fato_viagem"
+    full_table_name = f"{database}.{table_name}"
+    table_path = f"{gold_path}/{table_name}/"
 
-    mco_df = spark.table("silver_mobilidade.seniorerp.mapa_controle_operacional")
-    dim_empresa_df = spark.table("silver_mobilidade.seniorerp.dim_empresa")
+    spark.sql(f"CREATE DATABASE IF NOT EXISTS {database}")
 
-    fato_viagem = (
-
-        mco_df.alias("operacional")
-        .join(
-            dim_empresa_df.alias("emp"),
-            ["codigo_empresa"],
-            "left",
+    # 🔹 Garantir UNKNOWN na dimensão
+    spark.sql("""
+        INSERT INTO gold_mobilidade.dim_empresa
+        SELECT -1, 'UNKNOWN', 'Empresa Desconhecida', current_timestamp()
+        WHERE NOT EXISTS (
+            SELECT 1 FROM gold_mobilidade.dim_empresa WHERE sk_empresa = -1
         )
+    """)
+
+    # Extract
+    mco_df = spark.table("silver_mobilidade.mapa_controle_operacional")
+    dim_empresa_df = spark.table("gold_mobilidade.dim_empresa")
+
+    # Transform
+    fato_viagem = (
+        mco_df.alias("operacional")
+        .join(dim_empresa_df.alias("emp"), on="codigo_empresa", how="left")
         .select(
-            F.col("data_viagem").alias("sk_data"), #datas padronizadas como aaaammdd
-            F.col("emp.sk_empresa"),
-            F.col("numero_linha").alias("codigo_linha"),
-            F.current_timestamp().alias("_data_processamento")
+            F.col("data_viagem").cast("int").alias("sk_data"),
+            F.coalesce(F.col("emp.sk_empresa"), F.lit(-1)).cast("bigint").alias("sk_empresa"),
+            F.col("numero_linha").cast("string").alias("codigo_linha"),
+            F.current_timestamp().alias("_data_processamento"),
         )
     )
 
-    fato_viagem.write \
-        .format("delta") \
-        .mode("overwrite") \
-        .save(f"{gold_path}/fato_viagem")
+    # Load
+    (
+        fato_viagem.write
+        .format("delta")
+        .mode("overwrite")
+        .option("path", table_path)
+        .option("overwriteSchema", "true")
+        .option("mergeSchema", "true")
+        .partitionBy("sk_data")
+        .saveAsTable(full_table_name)
+    )
 
-    print("fato_viagem gerada com sucesso")
+    print(f"{full_table_name} criada com sucesso em {table_path}")

@@ -12,7 +12,7 @@ from silver.tipo_dia import run as silver_tipo_dia
 
 from gold.dim_data import run as dim_data
 from gold.dim_empresa import run as dim_empresa
-# from gold.fato_viagens import run as fato_viagens
+from gold.fato_viagens import run as fato_viagens
 # from gold.dim_tempo import run as dim_tempo
 # from gold.dim_justificativa import run as dim_justificativa
 # from gold.fato_viagem import run as fato_viagem
@@ -23,13 +23,13 @@ def main():
     print("Iniciando execução de main.py (entrypoint)")
     spark = get_spark()
     # spark.conf.set("spark.sql.legacy.timeParserPolicy", "LEGACY")
-    # Bronze [check]
+    # Bronze
     # bronze_interrupcao_viagem(spark, RAW_PATH, BRONZE_PATH)
     # bronze_operadora(spark, RAW_PATH, BRONZE_PATH)
     # bronze_mco(spark, RAW_PATH, BRONZE_PATH)
     # bronze_tipo_dia(spark, RAW_PATH, BRONZE_PATH)
     
-    # Silver [doing]
+    # Silver
     # silver_empresa_operadora(spark, SILVER_PATH)
     # silver_interrupcao_viagem(spark, SILVER_PATH)
     # silver_mapa_controle_operacional(spark, SILVER_PATH)
@@ -37,8 +37,8 @@ def main():
     
     # Gold[pendente]
     # dim_data(spark, GOLD_PATH)
-    dim_empresa(spark, SILVER_PATH)
-    # fato_viagens(spark, SILVER_PATH)
+    # dim_empresa(spark, SILVER_PATH)
+    fato_viagens(spark, SILVER_PATH)
 
     spark.stop()
     print("execução de main concluida")
