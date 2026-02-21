@@ -19,7 +19,7 @@ def _latest_run_path(bucket: str, runs_root_prefix: str) -> str:
     return f"s3://{bucket}/{latest_prefix}"
 
 
-def run(spark, bucket_name: str = "hv-challenge") -> None:
+def run(spark, bronze_path, silver_path, bucket_name: str = "hv-challenge") -> None:
     
     # Extract
     database = "silver_mobilidade"
@@ -52,7 +52,7 @@ def run(spark, bucket_name: str = "hv-challenge") -> None:
     full_table_name = f"{database}.{table_name}"
 
     # Arquitetura: s3://<bucket>/silver/<domain>/<table_name>/
-    table_s3_path = f"s3://{bucket_name}/silver/{domain}/{table_name}/"
+    table_s3_path = f"{silver_path}/{domain}/{table_name}/"
 
     (
         transformed_df

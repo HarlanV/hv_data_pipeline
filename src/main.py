@@ -23,16 +23,16 @@ def main():
     spark = get_spark()
 
     # Bronze [check]
-    # bronze_interrupcao_viagem(spark, RAW_PATH, BRONZE_PATH)
+    bronze_interrupcao_viagem(spark, RAW_PATH, BRONZE_PATH)
     # bronze_operadora(spark, RAW_PATH, BRONZE_PATH)
     bronze_mco(spark, RAW_PATH, BRONZE_PATH)
     # bronze_tipo_dia(spark, RAW_PATH, BRONZE_PATH)
     
     # Silver [doing]
-    silver_empresa_operadora(spark)
-    silver_interrupcao_viagem(spark)
-    silver_mapa_controle_operacional(spark)
-    silver_tipo_dia(spark)#, SILVER_PATH)
+    silver_empresa_operadora(spark, BRONZE_PATH, SILVER_PATH)
+    silver_interrupcao_viagem(spark, BRONZE_PATH, SILVER_PATH)
+    silver_mapa_controle_operacional(spark, BRONZE_PATH, SILVER_PATH)
+    silver_tipo_dia(spark, BRONZE_PATH, SILVER_PATH)
     
     # Gold[pendente]
     dim_data(spark, SILVER_PATH, GOLD_PATH)
