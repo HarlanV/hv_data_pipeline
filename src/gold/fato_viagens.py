@@ -1,6 +1,7 @@
 from pyspark.sql import functions as F
 
-def run(spark, gold_path: str, silver_path:str):
+
+def run(spark, gold_path: str):
     print("Iniciando geração da fato_viagem")
 
     database = "gold_mobilidade"

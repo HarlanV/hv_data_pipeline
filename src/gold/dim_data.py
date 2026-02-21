@@ -1,7 +1,7 @@
 from pyspark.sql import functions as F
 
 
-def run(spark, gold_path: str, silver_path:str):
+def run(spark, gold_path: str):
     database = "gold_comum"
     domain = "mobilidade"
     table_name = "dim_data"

@@ -2,7 +2,7 @@ from pyspark.sql import functions as F
 from delta.tables import DeltaTable
 
 
-def run(spark, gold_path: str, silver_path:str):
+def run(spark, gold_path: str):
     print("Iniciando geração da dim_empresa")
 
     database = "gold_mobilidade"
