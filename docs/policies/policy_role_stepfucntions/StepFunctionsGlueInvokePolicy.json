@@ -1,0 +1,25 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "StartGlueJobRun",
+            "Effect": "Allow",
+            "Action": [
+                "glue:StartJobRun"
+            ],
+            "Resource": "arn:aws:glue:us-east-1:347765733216:job/hv-glue-job"
+        },
+        {
+            "Sid": "ReadGlueJobRunStatus",
+            "Effect": "Allow",
+            "Action": [
+                "glue:GetJob",
+                "glue:GetJobRun",
+                "glue:GetJobRuns"
+            ],
+            "Resource": [
+                "arn:aws:glue:us-east-1:347765733216:job/hv-glue-job"
+            ]
+        }
+    ]
+}

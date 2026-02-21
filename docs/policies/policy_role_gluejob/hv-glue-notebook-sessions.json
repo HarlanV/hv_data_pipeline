@@ -1,0 +1,44 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowPassHvGlueRoleToGlueOnly",
+            "Effect": "Allow",
+            "Action": "iam:PassRole",
+            "Resource": "arn:aws:iam::347765733216:role/hv-glue-role",
+            "Condition": {
+                "StringEquals": {
+                    "iam:PassedToService": "glue.amazonaws.com"
+                }
+            }
+        },
+        {
+            "Sid": "AllowGlueInteractiveSessionsAndNotebooks",
+            "Effect": "Allow",
+            "Action": [
+                "glue:CreateSession",
+                "glue:DeleteSession",
+                "glue:GetSession",
+                "glue:ListSessions",
+                "glue:RunStatement",
+                "glue:GetStatement",
+                "glue:ListStatements",
+                "glue:CancelStatement",
+                "glue:StopSession"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "AllowCloudWatchLogsForSessions",
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:DescribeLogGroups",
+                "logs:DescribeLogStreams"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
