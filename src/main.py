@@ -21,7 +21,7 @@ def main():
 
     print("Iniciando execução de main.py (entrypoint)")
     spark = get_spark()
-
+    # spark.conf.set("spark.sql.legacy.timeParserPolicy", "LEGACY")
     # Bronze [check]
     bronze_interrupcao_viagem(spark, RAW_PATH, BRONZE_PATH)
     # bronze_operadora(spark, RAW_PATH, BRONZE_PATH)

@@ -8,15 +8,20 @@ def run(spark, gold_path: str):
 
     mco_df = spark.table("silver_mobilidade.seniorerp.mapa_controle_operacional")
 
+    # Aqui podemos aplicar regras de negocio mais complexas.
+    # Nesse desafio foi focado mais na arquitetura e menos em tratamento complexos
+    # pra isso 
     fato_viagem = (
-        mco_df.select(
+
+        mco_df.alias("operacional")
+        .select(
             F.col("data_viagem").alias("sk_data"),
             F.col("LINHA").alias("linha_codigo"),
             F.col("VIAGEM").alias("viagem_codigo"),
             F.col("KM_RODADO").cast("double").alias("km_rodado"),
-            F.col("PASSAGEIROS").cast("int").alias("qtd_passageiros")
+            F.col("PASSAGEIROS").cast("int").alias("qtd_passageiros"),
+            F.current_timestamp().alias("_data_processamento")
         )
-        .withColumn("data_sk", F.to_date("data_operacao"))
     )
 
     fato_viagem.write \
