@@ -1,4 +1,4 @@
-BUCKET_NAME = "hv-challeng"
+BUCKET_NAME = "hv-challenge"
 S3_BUCKET = F"s3://{BUCKET_NAME}"
 RAW_PATH = f"{S3_BUCKET}/raw"
 BRONZE_PATH = f"{S3_BUCKET}/bronze"

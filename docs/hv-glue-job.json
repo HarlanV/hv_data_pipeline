@@ -1,0 +1,62 @@
+{
+	"jobConfig": {
+		"name": "hv-glue-job",
+		"description": "",
+		"role": "arn:aws:iam::347765733216:role/hv-glue-role",
+		"command": "glueetl",
+		"version": "5.1",
+		"runtime": null,
+		"workerType": "G.1X",
+		"numberOfWorkers": 2,
+		"maxCapacity": 2,
+		"jobRunQueuingEnabled": false,
+		"maxRetries": 0,
+		"timeout": 10,
+		"maxConcurrentRuns": 1,
+		"security": "none",
+		"scriptName": "main.py",
+		"scriptLocation": "s3://hv-challenge/scripts/",
+		"language": "python-3",
+		"spark": true,
+		"sparkConfiguration": "standard",
+		"jobParameters": [
+			{
+				"key": "--datalake-formats",
+				"value": "delta",
+				"existing": false
+			},
+			{
+				"key": "--layer",
+				"value": "all",
+				"existing": false
+			},
+			{
+				"key": "--enable-glue-datacatalog",
+				"value": "true",
+				"existing": false
+			}
+		],
+		"tags": [],
+		"jobMode": "DEVELOPER_MODE",
+		"createdOn": "2026-02-20T18:29:52.977Z",
+		"developerMode": true,
+		"connectionsList": [],
+		"temporaryDirectory": "s3://aws-glue-assets-347765733216-us-east-1/temporary/",
+		"etlAutoScaling": true,
+		"logging": true,
+		"glueHiveMetastore": true,
+		"etlAutoTuning": false,
+		"metrics": true,
+		"observabilityMetrics": true,
+		"pythonPath": "s3://hv-challenge/scripts/hv_pipeline.zip",
+		"bookmark": "job-bookmark-disable",
+		"sparkPath": "s3://aws-glue-assets-347765733216-us-east-1/sparkHistoryLogs/",
+		"flexExecution": true,
+		"minFlexWorkers": null,
+		"maintenanceWindow": null,
+		"dataLineage": false
+	},
+	"hasBeenSaved": false,
+	"usageProfileName": null,
+	"script": "from common.spark_session import get_spark\nfrom common.paths import RAW_PATH, BRONZE_PATH, SILVER_PATH, GOLD_PATH\n\nfrom bronze.codigo_interrupcao_viagem import run as bronze_interrupcao_viagem\nfrom bronze.empresa_operadora import run as bronze_operadora\nfrom bronze.mco import run as bronze_mco\nfrom bronze.tipo_dia import run as bronze_tipo_dia\nfrom silver.empresa_operadora import run as silver_empresa_operadora\nfrom silver.interrupcao_viagem import run as silver_interrupcao_viagem\nfrom silver.mapa_controle_operacional import run as silver_mapa_controle_operacional\nfrom silver.tipo_dia import run as silver_tipo_dia\n\nfrom gold.dim_data import run as dim_data\n# from gold.dim_empresa import run as dim_empresa\n# from gold.dim_tempo import run as dim_tempo\n# from gold.dim_justificativa import run as dim_justificativa\n# from gold.fato_viagem import run as fato_viagem\n\n\ndef main(): \n\n    print(\"Iniciando execução de main.py (entrypoint)\")\n    spark = get_spark()\n\n    # Bronze [check]\n    # bronze_interrupcao_viagem(spark, RAW_PATH, BRONZE_PATH)\n    # bronze_operadora(spark, RAW_PATH, BRONZE_PATH)\n    bronze_mco(spark, RAW_PATH, BRONZE_PATH)\n    # bronze_tipo_dia(spark, RAW_PATH, BRONZE_PATH)\n    \n    # Silver [doing]\n    silver_empresa_operadora(spark)\n    silver_interrupcao_viagem(spark)\n    silver_mapa_controle_operacional(spark)\n    silver_tipo_dia(spark)#, SILVER_PATH)\n    \n    # Gold[pendente]\n    dim_data(spark, SILVER_PATH, GOLD_PATH)\n    # dim_empresa(spark, SILVER_PATH, GOLD_PATH)\n    # dim_tempo(spark, SILVER_PATH, GOLD_PATH)\n    # dim_justificativa(spark, SILVER_PATH, GOLD_PATH)\n\n    # fato_viagem(spark, SILVER_PATH, GOLD_PATH)\n\n    spark.stop()\n    print(\"execução de main concluida\")\n\n\nif __name__ == \"__main__\":\n    main()"
+}
