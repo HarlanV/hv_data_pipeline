@@ -4,7 +4,7 @@ from common.history_cleaner import HistoryCleaner
 
 
 def run(spark, raw_path: str, bronze_path: str) -> None:
-    dataset = "mapa_controle_operacional"
+    dataset = "tipo_dia"
     raw_path = f"{raw_path}/{dataset}/*.csv"
     bronze_path = f"{bronze_path}/{dataset}"
 
