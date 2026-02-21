@@ -1,25 +1,10 @@
 import boto3
 from pyspark.sql import functions as F
 from pyspark.sql.types import StringType, ShortType, IntegerType, DateType
+from common.helpers_tools import latest_run_path
 
 
-def _latest_run_path(bucket: str, runs_root_prefix: str) -> str:
-    s3 = boto3.client("s3")
-    paginator = s3.get_paginator("list_objects_v2")
-
-    runs = []
-    for page in paginator.paginate(Bucket=bucket, Prefix=runs_root_prefix, Delimiter="/"):
-        for cp in page.get("CommonPrefixes", []):
-            runs.append(cp["Prefix"])
-
-    if not runs:
-        raise RuntimeError(f"Nenhum run encontrado em s3://{bucket}/{runs_root_prefix}")
-
-    latest_prefix = sorted(runs)[-1]  # ordenável pelo padrão YYYY-MM-DDTHH-MM-SSZ
-    return f"s3://{bucket}/{latest_prefix}"
-
-
-def run(spark, bronze_path, silver_path, bucket_name: str = "hv-challenge") -> None:
+def run(spark, silver_path, bucket_name: str = "hv-challenge") -> None:
     
     # Extract
     database = "silver_mobilidade"
@@ -30,7 +15,8 @@ def run(spark, bronze_path, silver_path, bucket_name: str = "hv-challenge") -> N
     print(f'Iniciando silver {database}')
 
     # Consulta a ultima bronze executada
-    latest_run_s3 = _latest_run_path(bucket_name, runs_root_prefix)
+    s3 = boto3.client("s3")
+    latest_run_s3 = latest_run_path(s3, bucket_name, runs_root_prefix)
     bronze_df = spark.read.parquet(latest_run_s3)
 
     # Transform

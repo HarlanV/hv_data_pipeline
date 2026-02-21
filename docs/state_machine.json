@@ -1,0 +1,63 @@
+{
+  "Comment": "Orquestra Bronze -> Silver -> Gold via Glue Job",
+  "StartAt": "RunBronze",
+  "States": {
+    "RunBronze": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "hv-glue-job",
+        "Arguments": {
+          "--layer": "bronze"
+        }
+      },
+      "Next": "RunSilver",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "IntervalSeconds": 10,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ]
+    },
+    "RunSilver": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "hv-glue-job",
+        "Arguments": {
+          "--layer": "silver"
+        }
+      },
+      "Next": "RunGold",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "IntervalSeconds": 10,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ]
+    },
+    "RunGold": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "hv-glue-job",
+        "Arguments": {
+          "--layer": "gold"
+        }
+      },
+      "End": true,
+      "Retry": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "IntervalSeconds": 10,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ]
+    }
+  }
+}

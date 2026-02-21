@@ -29,13 +29,13 @@ def main():
     # bronze_tipo_dia(spark, RAW_PATH, BRONZE_PATH)
     
     # Silver [doing]
-    silver_empresa_operadora(spark, BRONZE_PATH, SILVER_PATH)
-    silver_interrupcao_viagem(spark, BRONZE_PATH, SILVER_PATH)
-    silver_mapa_controle_operacional(spark, BRONZE_PATH, SILVER_PATH)
-    silver_tipo_dia(spark, BRONZE_PATH, SILVER_PATH)
+    silver_empresa_operadora(spark, SILVER_PATH)
+    silver_interrupcao_viagem(spark, SILVER_PATH)
+    silver_mapa_controle_operacional(spark, SILVER_PATH)
+    silver_tipo_dia(spark, SILVER_PATH)
     
     # Gold[pendente]
-    dim_data(spark, SILVER_PATH, GOLD_PATH)
+    dim_data(spark, GOLD_PATH)
     # dim_empresa(spark, SILVER_PATH, GOLD_PATH)
     # dim_tempo(spark, SILVER_PATH, GOLD_PATH)
     # dim_justificativa(spark, SILVER_PATH, GOLD_PATH)

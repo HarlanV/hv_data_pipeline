@@ -2,7 +2,7 @@ import boto3  # (não é usado aqui, mas mantive pra ficar no mesmo padrão da s
 from pyspark.sql import functions as F
 from pyspark.sql.types import IntegerType, DateType, StringType
 
-def run(spark, gold_path, bucket_name: str = "hv-challenge") -> None:
+def run(spark, bucket_name: str = "hv-challenge") -> None:
     # Destino (Gold)
     database = "gold_comum"
     domain = "mobilidade"
@@ -17,7 +17,7 @@ def run(spark, gold_path, bucket_name: str = "hv-challenge") -> None:
     full_table_name = f"{database}.{table_name}"
 
     # Arquitetura: s3://<bucket>/gold/<domain>/<table_name>/
-    table_s3_path = f"{gold_path}/{domain}/{table_name}/"
+    table_s3_path = f"s3://{bucket_name}/gold/{domain}/{table_name}/"
 
     # Geração (Spark-only)
     start_date = "2000-01-01"
